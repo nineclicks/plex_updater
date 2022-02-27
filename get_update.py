@@ -37,8 +37,27 @@ def download_update(url):
                 #if chunk: 
                 f.write(chunk)
 
+def plex_users(config):
+    url = f"{config['host']}/status/sessions"
+
+    payload={}
+    headers = {
+      'X-Plex-Token': config['token'],
+      'Accept': 'application/json'
+    }
+
+    response = requests.request("GET", url, headers=headers, data=payload)
+    num_users = response.json()['MediaContainer']['size']
+    return num_users
+
 with open('config.json', 'r') as fp:
     config = json.load(fp)
+
+num_users = plex_users(config)
+print('Number of plex users online:', num_users)
+if num_users > 0:
+    print('Plex is currently in use')
+    exit(1)
 
 update_check(config)
 update_url = update_status(config)
